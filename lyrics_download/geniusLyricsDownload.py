@@ -1,7 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
-def Genius_lyrics(song_title, artist_name):
+
+def Genius_lyrics(song_title, artist_name, path='lyrics'):
     access_token = '3mMduEpFc43-RQmPpffLONmmSnBTZWWIzlcqioYtTJyc1QDOm_RsLeNOtYptwYpA'
 
     # Make a search request to Genius API
@@ -28,12 +29,13 @@ def Genius_lyrics(song_title, artist_name):
             if lyrics_response.status_code == 200:
                 # Parse HTML content to extract lyrics
                 soup = BeautifulSoup(lyrics_response.text, 'html.parser')
-                lyrics_div = soup.find('div', class_='Lyrics__Container-sc-1ynbvzw-1')
+                lyrics_div = soup.find(
+                    'div', class_='Lyrics__Container-sc-1ynbvzw-1')
                 # <div data-lyrics-container="true" class="Lyrics__Container-sc-1ynbvzw-1 kUgSbL">[Verse 1]<br>हम तेरे बिन अब रह नहीं सकते<br>तेरे बिना क्या वजूद मेरा?<br>हम तेरे बिन अब रह नहीं सकते<br>तेरे बिना क्या वजूद मेरा?<br>तुझ से जुदा अगर हो जाएँगे<br>तो ख़ुद से ही हो जाएँगे जुदा<br><br>[Chorus]<br>क्योंकि तुम ही हो, अब तुम ही हो<br>ज़िंदगी अब तुम ही हो<br>चैन भी, मेरा दर्द भी<br>मेरी आशिक़ी अब तुम ही हो<br><br>[Verse 2]<br>तेरा-मेरा रिश्ता है कैसा?<br>एक पल दूर गवारा नहीं<br>तेरे लिए हर रोज़ हैं जीते<br>तुझ को दिया मेरा वक्त सभी<br>कोई लमहा मेरा ना हो तेरे बिना<br>हर साँस पे नाम तेरा<br><br>[Chorus]<br>क्योंकि तुम ही हो, अब तुम ही हो<br>ज़िंदगी अब तुम ही हो<br>चैन भी, मेरा दर्द भी<br>मेरी आशिक़ी अब तुम ही हो<br>तुम ही हो, तुम ही हो<br><br>[Verse 3]<br>तेरे लिए ही जिया मैं<br>ख़ुद को जो यूँ दे दिया है<br>तेरी वफ़ा ने मुझ को सँभाला<br>सारे ग़मों को दिल से निकाला<br>तेरे साथ मेरा है नसीब जुड़ा<br>तुझे पा के अधूरा ना रहा<br><br>[Chorus]<br>क्योंकि तुम ही हो, अब तुम ही हो<br>ज़िंदगी अब तुम ही हो<br>चैन भी, मेरा दर्द भी<br>मेरी आशिक़ी अब तुम ही हो<br><br>क्योंकि तुम ही हो, अब तुम ही हो<br>ज़िंदगी अब तुम ही हो<br>चैन भी, मेरा दर्द भी<br>मेरी आशिक़ी अब तुम ही हो</div>
                 if lyrics_div:
                     lyrics = lyrics_div.get_text('\n', strip=True)
-                    
-                    file_path = artist_name +"-" +song_title+'.txt'
+
+                    file_path = path + "\\"+artist_name + " - " + song_title+'.txt'
                     with open(file_path, 'w', encoding='utf-8') as file:
                         file.write(lyrics)
 
@@ -46,10 +48,13 @@ def Genius_lyrics(song_title, artist_name):
             print("Song not found.")
     else:
         print(f"Error: {response.status_code}")
+
+
 # Anup Jalota - Ae Malik Tere Bande Hum
 song_title = 'Ae Malik Tere Bande Hum'
 artist_name = 'Anup Jalota'
 
 song_name = "Udd Jaa Kaale Kaava"
 artist_name = "Udit Narayan, Alka Yagnik, Mithoon, Uttam Singh"
-Genius_lyrics(song_name, artist_name)
+url = 'lyrics/test'
+Genius_lyrics(song_name, artist_name, url)
