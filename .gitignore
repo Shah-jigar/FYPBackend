@@ -25480,3 +25480,6 @@ venv/Lib/site-packages/typing_extensions-4.9.0.dist-info/RECORD
 venv/Lib/site-packages/typing_extensions-4.9.0.dist-info/WHEEL
 venv/Scripts/f2py.exe
 venv/Scripts/numba
+.venv/pyvenv.cfg
+.venv/Scripts/python.exe
+.venv/Scripts/pythonw.exe
