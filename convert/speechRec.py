@@ -21,7 +21,7 @@ def convert_audio_to_text(audio_file):
         return None
 
 # Replace 'your_audio_file.wav' with the path to your Hindi audio file
-audio_file_path = "./songs/Romantic_301.wav"
+audio_file_path = 'downloads\genre\Garhwali\Narendra Singh Negi - Saun Bhadogi.opus'
 result = convert_audio_to_text(audio_file_path)
 
 if result:
