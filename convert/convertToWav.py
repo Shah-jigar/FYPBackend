@@ -2,6 +2,6 @@
 
 import os
 # opus_path = "./Abhijeet Srivastava - Chashni (From Bharat).opus"
-opus_path = "./opus/Anup Jalota - Ae Malik Tere Bande Hum.opus"
-wav_path = 'Anup Jalota - Ae Malik Tere Bande Hum.wav'
+opus_path = "downloads\genre\Garhwali\Anil - Chakdait Chhora.opus"
+wav_path = 'something.wav'
 os.system(f'ffmpeg -i "{opus_path}" -vn "{wav_path}"')

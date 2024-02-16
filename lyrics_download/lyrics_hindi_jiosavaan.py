@@ -30,8 +30,8 @@ def fetch_lyrics(artist_name, song_name, path="lyrics"):
         return {"Error": e}
 
 
-song_name = "Udd Jaa Kaale Kaava"
-artist_name = "Udit Narayan, Alka Yagnik, Mithoon, Uttam Singh"
+song_name = "Chandi Jaisa Rang - Live"
+artist_name = "Pankaj Udhas"
 
-lyr = fetch_lyrics(artist_name, song_name, path = "lyrics")
+lyr = fetch_lyrics(artist_name, song_name, path="lyrics")
 # print(lyr)

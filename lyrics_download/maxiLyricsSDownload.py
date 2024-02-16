@@ -35,8 +35,8 @@ def get_lyrics(song_name, artist_name, path="lyrics"):
 
 
 # <a screen_name="artist_screen" sec_title="artist_overview_screen" text="Jubin Nautiyal" class="" href="/artist/jubin-nautiyal-songs/uGdfg6zGf4s_"> <!-- -->Jubin Nautiyal</a>
-song_name = "Mere Ghar Ram Aaye Hain"
-artist_name = "Jubin Nautiyal"
+song_name = "Woh Mere Aas Paas Tha"
+artist_name = "Kavita Krishnamurthy"
 # path = ""
 lyrics = get_lyrics(song_name, artist_name, path="lyrics")
 print(lyrics)

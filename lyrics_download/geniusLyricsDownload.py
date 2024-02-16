@@ -1,15 +1,24 @@
+import os
 import requests
 from bs4 import BeautifulSoup
+from ltr import preprocessyrics, toHindi, contains_hindi
 
 
-def Genius_lyrics(song_title, artist_name, path='lyrics'):
+class CustomException(Exception):
+    def __init__(self, message=""):
+        self.message = message
+        super().__init__(self.message)
+
+
+def Genius_lyrics(song_title1, artist_name1, path='lyrics'):
     access_token = '3mMduEpFc43-RQmPpffLONmmSnBTZWWIzlcqioYtTJyc1QDOm_RsLeNOtYptwYpA'
 
     # Make a search request to Genius API
-    url = f'https://api.genius.com/search?q={song_title} {artist_name}'
+    url = f'https://api.genius.com/search?q={song_title1} {artist_name1}'
     headers = {'Authorization': f'Bearer {access_token}'}
     response = requests.get(url, headers=headers)
     data = response.json()
+    # print(data)
 
     # Check if the request was successful
     if response.status_code == 200:
@@ -23,6 +32,9 @@ def Genius_lyrics(song_title, artist_name, path='lyrics'):
 
             print(f"Song: {song_title} by {artist_name}")
             print(f"Lyrics URL: {lyrics_url}")
+            if (song_title != song_title1):
+                print("incorrect Song")
+                raise CustomException("Incorrect song found")
 
             # Make a request to the lyrics URL
             lyrics_response = requests.get(lyrics_url)
@@ -38,23 +50,32 @@ def Genius_lyrics(song_title, artist_name, path='lyrics'):
                     file_path = path + "\\"+artist_name + " - " + song_title+'.txt'
                     with open(file_path, 'w', encoding='utf-8') as file:
                         file.write(lyrics)
+                    print("file created")
 
                     # print(f"\nLyrics:\n{lyrics}")
                 else:
                     print("Lyrics not found on the page.")
             else:
                 print(f"Error fetching lyrics: {lyrics_response.status_code}")
+                raise CustomException("Error fetching lyrics")
+
         else:
             print("Song not found.")
+            raise CustomException("Song not found")
+
     else:
         print(f"Error: {response.status_code}")
+        raise CustomException("error")
 
 
-# Anup Jalota - Ae Malik Tere Bande Hum
-song_title = 'Ae Malik Tere Bande Hum'
-artist_name = 'Anup Jalota'
+# song_name = "Udd Jaa Kaale Kaava"
+# artist_name = "Udit Narayan"
+# url = 'lyrics'
 
-song_name = "Udd Jaa Kaale Kaava"
-artist_name = "Udit Narayan, Alka Yagnik, Mithoon, Uttam Singh"
-url = 'lyrics/test'
-Genius_lyrics(song_name, artist_name, url)
+# Genius_lyrics(song_name, artist_name, url)
+# file = url+"/"+artist_name+" - "+song_name+".txt"
+# with open(file, 'r', encoding='utf-8') as f:
+#     lyrics = f.readlines()
+#     lyrics = preprocessyrics(lyrics)
+#     with open(file, 'w', encoding='utf-8') as f1:
+#         f1.write(lyrics)
