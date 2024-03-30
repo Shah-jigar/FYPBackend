@@ -1,5 +1,4 @@
 from pprint import pprint
-import gridfs
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from bson import ObjectId, Binary
@@ -7,14 +6,12 @@ from gridfs import GridFS
 from dotenv import load_dotenv, find_dotenv
 import os
 import pandas as pd
-from time import time
 
 load_dotenv(find_dotenv())
 connections = {'local': None, 'remote': None}
 
 
 def get_connection(level, db_name):
-
     if level == 'local':
         url = os.getenv('MONGODB_LOCAL_URL')
     elif level == 'remote':
@@ -49,8 +46,8 @@ def close_connection(client):
 def create_document(collection, data):
     result = collection.insert_one(data)
     print(f"Document inserted with ID: {result.inserted_id}")
-    # print(f'data: {data}')
     return result.inserted_id
+    # print(f'data: {data}')
 
 
 def read_documents(collection, query={}):
@@ -60,8 +57,6 @@ def read_documents(collection, query={}):
 
 
 def update_document(collection, query, new_data):
-    print(new_data)
-    pprint(query)
     result = collection.update_one(query, {'$set': new_data})
     print(f"Matched {result.matched_count} document(s) and modified {
           result.modified_count} document(s)")
@@ -74,15 +69,26 @@ def delete_document(collection, query):
 
 def fetch_record(collection, query):
     cursor = collection.find_one(query)
-    # print(cursor['_id'])
     return cursor
+
+
+def get_maxId_songs():
+    with open("songsMaxid.txt", 'r') as file:
+        data = file.read()
+        return data
+
+
+def set_maxId_songs(id):
+    with open("songsMaxid.txt", 'w') as file:
+        file.write(str(id))
+    print(f'Max id set to {id}')
 
 
 def check_if_exists(collection, query):
     cursor = collection.find_one(query)
     if cursor:
-        print(f"document already exists with same data for the data : _id={
-              cursor['_id']}, SongName = {cursor["Song Name"]}, artist = {cursor['artist']}, genre = {cursor['genre']}, emotion = {cursor['emotion']} ")
+        print(f'document already exists with same data for the data : _id={cursor['_id']}, id = {
+              cursor['id']}, SongName = {cursor["Song Name"]}, artist = {cursor['artists']} ')
         return cursor
     else:
         return None
@@ -104,16 +110,14 @@ def load_songs_csv(csv_path, types, db, collections,):
     df = pd.read_csv(csv_path)
     lst = []
     for index, row in df.iterrows():
-        print(index)
         x = row['Song_Name']
         features = row[2:15]
         # print(features)
         folder, songData = x.split('/')
         artist, song = songData.split(" - ", 1)
-        song = song.split(".")[0]
-        data = {"Song Name": song, "artist": artist}
+        data = {"Song Name": song, "artists": [
+            artist], "lyrics": row['lyrics']}
         exists = check_if_exists(collection=collections[0], query=data)
-
         uploaded_file = ''
         try:
             if not exists:
@@ -121,26 +125,33 @@ def load_songs_csv(csv_path, types, db, collections,):
                     file_data = file.read()
                     uploaded_file = fs.put(
                         file_data, filename=row['Song_Name'])
-                data_to_insert0 = {"Song Name": song, "artist": artist}
-                data_to_insert0.update(features)
-                features_id = create_document(
-                    collection=collections[1], data=data_to_insert0)
-                data_to_insert = {"Song Name": song, "artist": artist,
-                                  "lyrics": row['lyrics'], 'file': uploaded_file, 'features_id': features_id, 'genre': '', "emotion": ''}
-                data_to_insert[types] = folder
+                
+                # For adding data of the extracted features to the other collection -> pending
+                features['Song Name'] = song
+                features['artists'] = artist
+                # print(features)
+                id_features = create_document(collection=collections[1], data=features)
+
+                id = int(get_maxId_songs()) + 1
+                data_to_insert = {"Song Name": song, "artists": [
+                    artist], "lyrics": row['lyrics'], 'features_id':id_features, 'file': uploaded_file, "id": id, 'genre': folder, "emotion": ''}
                 create_document(collection=collections[0], data=data_to_insert)
+                set_maxId_songs(id)
+
+
+
+
             else:
-                data = {"Song Name": song, "artist": artist}
+                data = {"Song Name": song, "artists": [artist]}
                 record = fetch_record(collection=collections[0], query=data)
                 if record['lyrics'] == '' and row['lyrics'] != '':
                     data['lyrics'] = row['lyrics']
                 if record[types] == '' and folder != '':
-                    data[types] = folder
-                update_document(
-                    collection=collections[0], query={"_id": record['_id']}, new_data=data)
-        except:
+                    data['lyrics'] = row['lyrics']
+        except Exception as e:
+            print(e)
             lst.append(x)
-    print("printing list of songs that could not be added to db or gave some error during insertion")
+
     pprint(lst)
 
 
@@ -149,18 +160,16 @@ if __name__ == "__main__":
 
     # Get connection
     client, db = get_connection(level='local', db_name='music')
-    collection0 = db['songs']
-    collection1 = db['song_features']
+    collection1 = db['songs']
+    collection2 = db['song_features']
 
     load_songs_csv(csv_path='Songs/genres/all_features_947.csv',
-                   types='genres', db=db, collections=[collection0, collection1])
-    load_songs_csv(csv_path='Songs/emotions/all_features_emotion_559.csv',
-                   types='emotions', db=db, collections=[collection0, collection1])
+                   types='genres', db=db, collections=[collection1, collection2])
 
     # Update entry
     # update_query = {'_id': ObjectId('65efeafe5a6afb9cf404edbc')}
     # new_data = {"city": "Mumbai"}
-    # update_document(collection= collection0,query=update_query, new_data=new_data)
+    # update_document(update_query, new_data)
 
     # Read documents
     # read_documents()
